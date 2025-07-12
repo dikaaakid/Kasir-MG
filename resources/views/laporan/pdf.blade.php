@@ -6,7 +6,35 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Laporan Pendapatan</title>
 
-    <link rel="stylesheet" href="{{ asset('/AdminLTE-2/bower_components/bootstrap/dist/css/bootstrap.min.css') }}">
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+        }
+        h3, h4 {
+            margin: 0;
+            padding: 0;
+        }
+        .text-center {
+            text-align: center;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #222;
+            padding: 6px 8px;
+            text-align: center;
+        }
+        th {
+            background: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background: #fafafa;
+        }
+    </style>
 </head>
 <body>
     <h3 class="text-center">Laporan Pendapatan</h3>
@@ -16,7 +44,7 @@
         Tanggal {{ tanggal_indonesia($akhir, false) }}
     </h4>
 
-    <table class="table table-striped">
+    <table>
         <thead>
             <tr>
                 <th width="5%">No</th>
