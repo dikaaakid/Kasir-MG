@@ -1,4 +1,3 @@
-use Illuminate\Database\Eloquent\Builder;
 <?php
 
 namespace App\Models;
