@@ -27,17 +27,17 @@ class PenjualanController extends Controller
                 return format_uang($penjualan->total_item);
             })
             ->addColumn('total_harga', function ($penjualan) {
-                return 'Rp. '. format_uang($penjualan->total_harga);
+                return 'Rp. ' . format_uang($penjualan->total_harga);
             })
             ->addColumn('bayar', function ($penjualan) {
-                return 'Rp. '. format_uang($penjualan->bayar);
+                return 'Rp. ' . format_uang($penjualan->bayar);
             })
             ->addColumn('tanggal', function ($penjualan) {
                 return tanggal_indonesia($penjualan->created_at, false);
             })
             ->addColumn('kode_member', function ($penjualan) {
                 $member = $penjualan->member->kode_member ?? '';
-                return '<span class="label label-success">'. $member .'</spa>';
+                return '<span class="label label-success">' . $member . '</spa>';
             })
             ->editColumn('diskon', function ($penjualan) {
                 return $penjualan->diskon . '%';
@@ -46,36 +46,43 @@ class PenjualanController extends Controller
                 return $penjualan->user->name ?? '';
             })
             ->addColumn('aksi', function ($penjualan) {
-                return '
-                <div class="btn-group">
-                    <button onclick="showDetail(`'. route('penjualan.show', $penjualan->id_penjualan) .'`)" class="btn btn-xs btn-info btn-flat"><i class="fa fa-eye"></i></button>
-                    <button onclick="deleteData(`'. route('penjualan.destroy', $penjualan->id_penjualan) .'`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
-                </div>
-                ';
+                return $this->getAksiButton($penjualan);
             })
-            ->rawColumns(['aksi', 'kode_member'])
+            ->rawColumns(['aksi', 'kode_member', 'tanggal', 'kode_member', 'kasir'])
             ->make(true);
+    }
+
+    public function getAksiButton($penjualan)
+    {
+        $btn = '
+            <div class="btn-group">
+                <button onclick="showDetail(`' . route('penjualan.show', $penjualan->id_penjualan) . '`)" class="btn btn-xs btn-info btn-flat">
+                    <i class="fa fa-eye"></i>
+                </button>';
+        if (auth()->user()->level == 1) {
+            $btn .= '
+                <button onclick="deleteData(`' . route('penjualan.destroy', $penjualan->id_penjualan) . '`)" class="btn btn-xs btn-danger btn-flat">
+                    <i class="fa fa-trash"></i>
+                </button>';
+        }
+        $btn .= '</div>';
+        return $btn;
     }
 
     public function create()
     {
         $penjualan = new Penjualan();
-    $penjualan->id_member = null;
-    $penjualan->total_item = 0;
-    $penjualan->total_harga = 0;
-    $penjualan->diskon = 0;
-    $penjualan->bayar = 0;
-    $penjualan->diterima = 0;
-    $penjualan->id_user = auth()->id();
-    $penjualan->save();
+        $penjualan->id_member = null;
+        $penjualan->total_item = 0;
+        $penjualan->total_harga = 0;
+        $penjualan->diskon = 0;
+        $penjualan->bayar = 0;
+        $penjualan->diterima = 0;
+        $penjualan->id_user = auth()->id();
+        $penjualan->save();
 
-    // ➕ Tambahkan kode_penjualan otomatis
-    $penjualan->kode_penjualan = 'TRX-' . date('Ymd') . '-' . str_pad($penjualan->id_penjualan, 4, '0', STR_PAD_LEFT);
-    $penjualan->save();
-
-    // Simpan ke session
-    session(['id_penjualan' => $penjualan->id_penjualan]);
-    return redirect()->route('transaksi.index');
+        session(['id_penjualan' => $penjualan->id_penjualan]);
+        return redirect()->route('transaksi.index');
     }
 
     public function store(Request $request)
@@ -110,22 +117,22 @@ class PenjualanController extends Controller
             ->of($detail)
             ->addIndexColumn()
             ->addColumn('kode_produk', function ($detail) {
-                return '<span class="label label-success">'. $detail->produk->kode_produk .'</span>';
+                return '<span class="label label-success">' . $detail->produk->kode_produk . '</span>';
             })
             ->addColumn('kode_nota', function ($detail) {
-    return $detail->penjualan->kode_penjualan ?? '-';
-})
+                return $detail->penjualan->kode_penjualan ?? '-';
+            })
             ->addColumn('nama_produk', function ($detail) {
                 return $detail->produk->nama_produk;
             })
             ->addColumn('harga_jual', function ($detail) {
-                return 'Rp. '. format_uang($detail->harga_jual);
+                return 'Rp. ' . format_uang($detail->harga_jual);
             })
             ->addColumn('jumlah', function ($detail) {
                 return format_uang($detail->jumlah);
             })
             ->addColumn('subtotal', function ($detail) {
-                return 'Rp. '. format_uang($detail->subtotal);
+                return 'Rp. ' . format_uang($detail->subtotal);
             })
             ->rawColumns(['kode_produk'])
             ->make(true);
@@ -161,14 +168,29 @@ class PenjualanController extends Controller
     {
         $setting = Setting::first();
         $penjualan = Penjualan::find(session('id_penjualan'));
+
         if (! $penjualan) {
             abort(404);
         }
         $detail = PenjualanDetail::with('produk')
-            ->where('id_penjualan', session('id_penjualan'))
+            ->where('id_penjualan', $penjualan->id_penjualan)
             ->get();
 
         return view('penjualan.nota_kecil', compact('setting', 'penjualan', 'detail'));
+    }
+
+    public function notaKecilRecap($id)
+    {
+        $setting = Setting::first();
+        $penjualan = Penjualan::find($id);
+        if (! $penjualan) {
+            abort(404);
+        }
+        $detail = PenjualanDetail::with('produk')
+            ->where('id_penjualan', $penjualan->id_penjualan)
+            ->get();
+
+        return view('penjualan.nota_kecil_recap', compact('setting', 'penjualan', 'detail'));
     }
 
     public function notaBesar()
@@ -183,7 +205,7 @@ class PenjualanController extends Controller
             ->get();
 
         $pdf = PDF::loadView('penjualan.nota_besar', compact('setting', 'penjualan', 'detail'));
-        $pdf->setPaper(0,0,609,440, 'potrait');
-        return $pdf->stream('Transaksi-'. date('Y-m-d-his') .'.pdf');
+        $pdf->setPaper(0, 0, 609, 440, 'potrait');
+        return $pdf->stream('Transaksi-' . date('Y-m-d-his') . '.pdf');
     }
 }

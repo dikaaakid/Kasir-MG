@@ -15,6 +15,7 @@
                         <th>Harga</th>
                         <th>Jumlah</th>
                         <th>Subtotal</th>
+                        <th>Aksi</th>
                     </thead>
                 </table>
             </div>
