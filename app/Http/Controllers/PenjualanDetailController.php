@@ -11,71 +11,75 @@ use Illuminate\Http\Request;
 
 class PenjualanDetailController extends Controller
 {
-    public function index()
-    {
-        $produk = Produk::orderBy('nama_produk')->get();
-        $member = Member::orderBy('nama')->get();
-        $diskon = Setting::first()->diskon ?? 0;
+public function index()
+{
+    $produk = Produk::orderBy('kode_produk', 'asc')->get(); // Urutkan produk berdasarkan kode_produk (ascending)
+    $member = Member::orderBy('nama')->get();
+    $diskon = Setting::first()->diskon ?? 0;
 
-        // Cek apakah ada transaksi yang sedang berjalan
-        if ($id_penjualan = session('id_penjualan')) {
-            $penjualan = Penjualan::find($id_penjualan);
-            $memberSelected = $penjualan->member ?? new Member();
+    // Cek apakah ada transaksi yang sedang berjalan
+    if ($id_penjualan = session('id_penjualan')) {
+        $penjualan = Penjualan::find($id_penjualan);
+        $memberSelected = $penjualan->member ?? new Member();
 
-            return view('penjualan_detail.index', compact('produk', 'member', 'diskon', 'id_penjualan', 'penjualan', 'memberSelected'));
+        return view('penjualan_detail.index', compact('produk', 'member', 'diskon', 'id_penjualan', 'penjualan', 'memberSelected'));
+    } else {
+        if (auth()->user()->level == 1) {
+            return redirect()->route('transaksi.baru');
         } else {
-            if (auth()->user()->level == 1) {
-                return redirect()->route('transaksi.baru');
-            } else {
-                return redirect()->route('home');
-            }
+            return redirect()->route('home');
         }
     }
+}
 
-    public function data($id)
-    {
-        $detail = PenjualanDetail::with('produk')
-            ->where('id_penjualan', $id)
-            ->get();
+public function data($id)
+{
+    $detail = PenjualanDetail::with('produk')
+        ->where('id_penjualan', $id)
+        ->get();
 
-        $data = array();
-        $total = 0;
-        $total_item = 0;
+    $data = array();
+    $total = 0;
+    $total_item = 0;
 
-        foreach ($detail as $item) {
-            $row = array();
-            $row['kode_produk'] = '<span class="label label-success">'. $item->produk['kode_produk'] .'</span';
-            $row['nama_produk'] = $item->produk['nama_produk'];
-            $row['harga_jual']  = 'Rp. '. format_uang($item->harga_jual);
-            $row['jumlah']      = '<input type="number" class="form-control input-sm quantity" data-id="'. $item->id_penjualan_detail .'" value="'. $item->jumlah .'">';
-            $row['diskon']      = $item->diskon . '%';
-            $row['subtotal']    = 'Rp. '. format_uang($item->subtotal);
-            $row['aksi']        = '<div class="btn-group">
-                                    <button onclick="deleteData(`'. route('transaksi.destroy', $item->id_penjualan_detail) .'`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
-                                </div>';
-            $data[] = $row;
+    foreach ($detail as $item) {
+        $row = array();
+        $row['kode_produk'] = '<span class="label label-success">'. $item->produk['kode_produk'] .'</span>';
+        $row['nama_produk'] = $item->produk['nama_produk'];
+        // Format harga jual dengan titik sebagai pemisah ribuan
+        $row['harga_jual']  = 'Rp. '. number_format($item->harga_jual, 0, ',', '.');
+        $row['jumlah']      = '<input type="number" class="form-control input-sm quantity" data-id="'. $item->id_penjualan_detail .'" value="'. $item->jumlah .'">';
+        $row['diskon']      = $item->diskon . '%';
+        // Format subtotal dengan titik sebagai pemisah ribuan
+        $row['subtotal']    = 'Rp. '. number_format($item->subtotal, 0, ',', '.');
+        $row['aksi']        = '<div class="btn-group">
+                                <button onclick="deleteData(`'. route('transaksi.destroy', $item->id_penjualan_detail) .'`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
+                            </div>';
+        $data[] = $row;
 
-            $total += $item->harga_jual * $item->jumlah;
-            $total_item += $item->jumlah;
-        }
-        $data[] = [
-            'kode_produk' => '
-                <div class="total hide">'. $total .'</div>
-                <div class="total_item hide">'. $total_item .'</div>',
-            'nama_produk' => '',
-            'harga_jual'  => '',
-            'jumlah'      => '',
-            'diskon'      => '',
-            'subtotal'    => '',
-            'aksi'        => '',
-        ];
-
-        return datatables()
-            ->of($data)
-            ->addIndexColumn()
-            ->rawColumns(['aksi', 'kode_produk', 'jumlah'])
-            ->make(true);
+        $total += $item->harga_jual * $item->jumlah;
+        $total_item += $item->jumlah;
     }
+
+    $data[] = [
+        'kode_produk' => '
+            <div class="total hide">'. $total .'</div>
+            <div class="total_item hide">'. $total_item .'</div>',
+        'nama_produk' => '',
+        'harga_jual'  => '',
+        'jumlah'      => '',
+        'diskon'      => '',
+        'subtotal'    => '',
+        'aksi'        => '',
+    ];
+
+    return datatables()
+        ->of($data)
+        ->addIndexColumn()
+        ->rawColumns(['aksi', 'kode_produk', 'jumlah'])
+        ->make(true);
+}
+
 
     public function store(Request $request)
     {

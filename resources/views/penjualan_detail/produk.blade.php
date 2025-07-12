@@ -12,21 +12,20 @@
                         <th width="5%">No</th>
                         <th>Kode</th>
                         <th>Nama</th>
-                        <th>Harga Beli</th>
+                        <th>Harga Jual</th>
                         <th><i class="fa fa-cog"></i></th>
                     </thead>
                     <tbody>
-                        @foreach ($produk as $key => $item)
+                        @foreach ($produk as $item)
                             <tr>
-                                <td width="5%">{{ $key+1 }}</td>
+                                <td>{{ $loop->iteration }}</td>
                                 <td><span class="label label-success">{{ $item->kode_produk }}</span></td>
                                 <td>{{ $item->nama_produk }}</td>
-                                <td>{{ $item->harga_beli }}</td>
+                                <td>Rp {{ number_format($item->harga_jual, 0, '.', '.') }}</td>
                                 <td>
                                     <a href="#" class="btn btn-primary btn-xs btn-flat"
                                         onclick="pilihProduk('{{ $item->id_produk }}', '{{ $item->kode_produk }}')">
-                                        <i class="fa fa-check-circle"></i>
-                                        Pilih
+                                        <i class="fa fa-check-circle"></i> Pilih
                                     </a>
                                 </td>
                             </tr>

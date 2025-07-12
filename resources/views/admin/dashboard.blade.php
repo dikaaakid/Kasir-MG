@@ -78,26 +78,28 @@
 </div>
 <!-- /.row -->
 
-<!-- Tombol Transaksi Baru -->
-<div class="row">
-    <div class="col-lg-12">
-        <div class="box">
-            <div class="box-body text-center">
-                <a href="{{ route('transaksi.baru') }}" class="btn btn-success btn-lg btn-flat">
-                    <i class="fa fa-shopping-cart"></i> Transaksi Baru
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- /.row -->
-
 <!-- Main row grafik pendapatan -->
 <div class="row">
     <div class="col-lg-12">
         <div class="box">
             <div class="box-header with-border">
-                <h3 class="box-title">Grafik Pendapatan {{ isset($tanggal_awal) ? tanggal_indonesia($tanggal_awal, false) : '' }} s/d {{ isset($tanggal_akhir) ? tanggal_indonesia($tanggal_akhir, false) : '' }}</h3>
+                <h3 class="box-title">Grafik Pendapatan
+                    @if(isset($tanggal_awal) && isset($tanggal_akhir))
+                        @php
+                            // Pastikan tanggal_awal lebih kecil dari tanggal_akhir
+                            $tgl_awal = strtotime($tanggal_awal);
+                            $tgl_akhir = strtotime($tanggal_akhir);
+
+                            // Jika tanggal awal lebih besar dari tanggal akhir, tukar posisinya
+                            if ($tgl_awal > $tgl_akhir) {
+                                $temp = $tanggal_awal;
+                                $tanggal_awal = $tanggal_akhir;
+                                $tanggal_akhir = $temp;
+                            }
+                        @endphp
+                        {{ tanggal_indonesia($tanggal_awal, false) }} s/d {{ tanggal_indonesia($tanggal_akhir, false) }}
+                    @endif
+                </h3>
             </div>
             <div class="box-body">
                 <div class="row">

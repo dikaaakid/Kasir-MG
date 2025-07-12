@@ -19,11 +19,11 @@ class KategoriController extends Controller
 
     public function data()
     {
-        $kategori = Kategori::orderBy('id_kategori', 'desc')->get();
+        $kategori = Kategori::orderBy('id_kategori', 'asc')->get(); // Menambahkan urutan ID yang benar
 
         return datatables()
             ->of($kategori)
-            ->addIndexColumn()
+            ->addIndexColumn() // Menambahkan nomor urut otomatis
             ->addColumn('aksi', function ($kategori) {
                 return '
                 <div class="btn-group">
@@ -34,16 +34,6 @@ class KategoriController extends Controller
             })
             ->rawColumns(['aksi'])
             ->make(true);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -72,17 +62,6 @@ class KategoriController extends Controller
         $kategori = Kategori::find($id);
 
         return response()->json($kategori);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
     }
 
     /**

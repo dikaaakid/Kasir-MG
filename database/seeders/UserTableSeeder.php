@@ -28,6 +28,13 @@ class UserTableSeeder extends Seeder
                 'password' => bcrypt('123'),
                 'foto' => '/img/user.jpg',
                 'level' => 2
+            ],
+            [
+                'name' => 'Kasir 2',
+                'email' => 'kasir2@gmail.com',
+                'password' => bcrypt('123'),
+                'foto' => '/img/user.jpg',
+                'level' => 2
             ]
         );
 

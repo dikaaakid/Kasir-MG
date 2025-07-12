@@ -58,13 +58,44 @@
                             <span class="help-block with-errors"></span>
                         </div>
                     </div>
+
+                    <script>
+                        const diskonInput = document.getElementById('diskon');
+
+                        // Saat input diklik atau difokusin, kalau isinya 0 -> kosongkan
+                        diskonInput.addEventListener('focus', function() {
+                            if (this.value === '0') {
+                                this.value = '';
+                            }
+                        });
+
+                        // Saat input blur (keluar dari fokus), kalau kosong -> balikin ke 0
+                        diskonInput.addEventListener('blur', function() {
+                            if (this.value.trim() === '') {
+                                this.value = 0;
+                            }
+                        });
+                    </script>
+
+
                     <div class="form-group row">
                         <label for="stok" class="col-lg-2 col-lg-offset-1 control-label">Stok</label>
                         <div class="col-lg-6">
-                            <input type="number" name="stok" id="stok" class="form-control" required value="0">
+                            <input type="number" name="stok" id="stok" class="form-control" required value="0" oninput="removeLeadingZero()">
                             <span class="help-block with-errors"></span>
                         </div>
                     </div>
+
+                    <script>
+                        function removeLeadingZero() {
+                            let stokInput = document.getElementById('stok');
+                            // Menghilangkan leading zero
+                            if (stokInput.value.length > 1 && stokInput.value[0] === '0') {
+                                stokInput.value = stokInput.value.replace(/^0+/, ''); // Menghapus semua 0 di depan
+                            }
+                        }
+                    </script>
+
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-sm btn-flat btn-primary"><i class="fa fa-save"></i> Simpan</button>
