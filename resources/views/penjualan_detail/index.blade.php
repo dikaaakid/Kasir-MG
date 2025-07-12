@@ -41,7 +41,12 @@
     <div class="col-lg-12">
         <div class="box">
             <div class="box-body">
-
+@if(isset($penjualan))
+    <div class="alert alert-info">
+        <strong>No. Nota:</strong>
+        {{ $penjualan->kode_penjualan ?? 'TRX-' . str_pad($penjualan->id_penjualan, 5, '0', STR_PAD_LEFT) }}
+    </div>
+@endif
                 <form class="form-produk">
                     @csrf
                     <div class="form-group row">

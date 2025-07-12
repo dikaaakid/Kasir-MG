@@ -131,4 +131,24 @@ public function data($id)
 
         return response()->json($data);
     }
+
+    public function autocomplete(Request $request)
+{
+    $search = $request->get('term');
+
+    $result = Produk::where('nama_produk', 'LIKE', '%' . $search . '%')
+        ->select('id_produk', 'kode_produk', 'nama_produk')
+        ->limit(10)
+        ->get();
+
+    return response()->json($result->map(function ($produk) {
+        return [
+            'label' => $produk->nama_produk . ' (' . $produk->kode_produk . ')',
+            'value' => $produk->nama_produk,
+            'id_produk' => $produk->id_produk,
+            'kode_produk' => $produk->kode_produk
+        ];
+    }));
+}
+
 }

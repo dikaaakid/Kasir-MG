@@ -30,11 +30,11 @@
         @media print {
             @page {
                 margin: 0;
-                size: 75mm 
+                size: 75mm
     ';
     ?>
-    <?php 
-    $style .= 
+    <?php
+    $style .=
         ! empty($_COOKIE['innerHeight'])
             ? $_COOKIE['innerHeight'] .'mm; }'
             : '}';
@@ -68,7 +68,7 @@
     <div class="clear-both" style="clear: both;"></div>
     <p>No: {{ tambah_nol_didepan($penjualan->id_penjualan, 10) }}</p>
     <p class="text-center">===================================</p>
-    
+
     <br>
     <table width="100%" style="border: 0;">
         @foreach ($detail as $item)

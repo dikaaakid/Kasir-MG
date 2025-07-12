@@ -97,5 +97,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::group(['middleware' => 'level:1,2'], function () {
         Route::get('/profil', [UserController::class, 'profil'])->name('user.profil');
         Route::post('/profil', [UserController::class, 'updateProfil'])->name('user.update_profil');
+
+        // Autocomplete Produk
+        Route::get('/autocomplete-produk', [PenjualanDetailController::class, 'autocomplete'])->name('produk.autocomplete');
     });
 });

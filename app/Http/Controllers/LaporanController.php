@@ -75,10 +75,11 @@ class LaporanController extends Controller
 
     public function exportPDF($awal, $akhir)
     {
+         error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED);
         $data = $this->getData($awal, $akhir);
         $pdf  = PDF::loadView('laporan.pdf', compact('awal', 'akhir', 'data'));
         $pdf->setPaper('a4', 'potrait');
-        
+
         return $pdf->stream('Laporan-pendapatan-'. date('Y-m-d-his') .'.pdf');
     }
 }

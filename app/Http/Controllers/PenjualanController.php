@@ -60,17 +60,22 @@ class PenjualanController extends Controller
     public function create()
     {
         $penjualan = new Penjualan();
-        $penjualan->id_member = null;
-        $penjualan->total_item = 0;
-        $penjualan->total_harga = 0;
-        $penjualan->diskon = 0;
-        $penjualan->bayar = 0;
-        $penjualan->diterima = 0;
-        $penjualan->id_user = auth()->id();
-        $penjualan->save();
+    $penjualan->id_member = null;
+    $penjualan->total_item = 0;
+    $penjualan->total_harga = 0;
+    $penjualan->diskon = 0;
+    $penjualan->bayar = 0;
+    $penjualan->diterima = 0;
+    $penjualan->id_user = auth()->id();
+    $penjualan->save();
 
-        session(['id_penjualan' => $penjualan->id_penjualan]);
-        return redirect()->route('transaksi.index');
+    // ➕ Tambahkan kode_penjualan otomatis
+    $penjualan->kode_penjualan = 'TRX-' . date('Ymd') . '-' . str_pad($penjualan->id_penjualan, 4, '0', STR_PAD_LEFT);
+    $penjualan->save();
+
+    // Simpan ke session
+    session(['id_penjualan' => $penjualan->id_penjualan]);
+    return redirect()->route('transaksi.index');
     }
 
     public function store(Request $request)
@@ -99,7 +104,7 @@ class PenjualanController extends Controller
 
     public function show($id)
     {
-        $detail = PenjualanDetail::with('produk')->where('id_penjualan', $id)->get();
+        $detail = PenjualanDetail::with(['produk', 'penjualan'])->where('id_penjualan', $id)->get();
 
         return datatables()
             ->of($detail)
@@ -107,6 +112,9 @@ class PenjualanController extends Controller
             ->addColumn('kode_produk', function ($detail) {
                 return '<span class="label label-success">'. $detail->produk->kode_produk .'</span>';
             })
+            ->addColumn('kode_nota', function ($detail) {
+    return $detail->penjualan->kode_penjualan ?? '-';
+})
             ->addColumn('nama_produk', function ($detail) {
                 return $detail->produk->nama_produk;
             })
