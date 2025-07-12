@@ -1,9 +1,11 @@
+use Illuminate\Database\Eloquent\Builder;
 <?php
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 class Penjualan extends Model
 {
@@ -26,10 +28,13 @@ class Penjualan extends Model
 
     protected static function booted()
     {
-        static::created(function ($penjualan) {
-            $kode = 'TRX-' . date('Ymd') . '-' . str_pad($penjualan->kode_penjualan, 4, '0', STR_PAD_LEFT);
+        parent::booted();
+        static::creating(function ($penjualan) {
+            $tanggal = Carbon::now()->toDateString();
+            $count = self::whereDate('created_at', $tanggal)->count();
+            $nextNumber = $count + 1;
+            $kode = 'TRX-' . Carbon::now()->format('Ymd') . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
             $penjualan->kode_penjualan = $kode;
-            $penjualan->save();
         });
     }
 
