@@ -71,6 +71,9 @@ class PenjualanController extends Controller
 
     public function create()
     {
+        if (session()->has('id_penjualan')) {
+            return redirect()->route('transaksi.index');
+        }
         $penjualan = new Penjualan();
         $penjualan->id_member = null;
         $penjualan->total_item = 0;
@@ -94,6 +97,7 @@ class PenjualanController extends Controller
         $penjualan->diskon = $request->diskon;
         $penjualan->bayar = $request->bayar;
         $penjualan->diterima = $request->diterima;
+        $penjualan->is_finished = true;
         $penjualan->update();
 
         $detail = PenjualanDetail::where('id_penjualan', $penjualan->id_penjualan)->get();
@@ -105,6 +109,7 @@ class PenjualanController extends Controller
             $produk->stok -= $item->jumlah;
             $produk->update();
         }
+        session()->forget('id_penjualan');
 
         return redirect()->route('transaksi.selesai');
     }
@@ -167,7 +172,11 @@ class PenjualanController extends Controller
     public function notaKecil()
     {
         $setting = Setting::first();
-        $penjualan = Penjualan::find(session('id_penjualan'));
+        // Ambil transaksi terakhir yang sudah selesai milik user aktif
+        $penjualan = Penjualan::where('id_user', auth()->id())
+            ->where('is_finished', true)
+            ->latest('updated_at')
+            ->first();
 
         if (! $penjualan) {
             abort(404);

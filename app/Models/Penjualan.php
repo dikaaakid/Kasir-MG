@@ -21,6 +21,7 @@ class Penjualan extends Model
         'diterima',
         'id_user',
         'kode_penjualan',
+        'is_finished'
     ];
 
     protected $guarded = [];

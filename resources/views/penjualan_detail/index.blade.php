@@ -167,7 +167,7 @@
                     processing: true,
                     autoWidth: false,
                     ajax: {
-                        url: '{{ route('transaksi_baru.data', 78) }}',
+                        url: '{{ route('transaksi_baru.data', $id_penjualan) }}',
                     },
                     columns: [{
                             data: 'DT_RowIndex',
